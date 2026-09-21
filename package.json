@@ -1,0 +1,11 @@
+{
+  "name": "homepulse-energy-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Offline smart home utility-based agent simulation",
+  "scripts": {
+    "test": "node --test tests/engine.test.js",
+    "start": "python -m http.server 8000",
+    "build": "node build.js"
+  }
+}
