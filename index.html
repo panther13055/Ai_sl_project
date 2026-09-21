@@ -4,76 +4,148 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>HomePulse · Smart Home Energy Agent</title>
-  <meta name="description" content="A smart home energy simulation. Adjust room conditions and see how the agent manages lights and cooling.">
+  <meta name="description" content="HomePulse is an explainable utility-based smart-home energy agent simulation.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <script src="engine.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
-  <a href="#overview" class="skip-link">Skip to dashboard</a>
-  <header class="site-header">
-    <div class="header-inner"><a class="brand" href="#overview">HomePulse</a><span>Smart Home Energy Agent</span></div>
-  </header>
-  <main id="overview">
-    <section class="page-title">
-      <div><h1>Energy dashboard</h1><p>Adjust the room conditions to see which appliances the agent selects.</p></div>
-      <div class="clock"><span id="sim-time">18:00</span><small>Simulation time</small></div>
+  <a href="#dashboard" class="skip-link">Skip to dashboard</a>
+
+  <aside class="sidebar" aria-label="Primary navigation">
+    <a class="side-brand" href="#dashboard"><span class="logo-mark">H</span><span><strong>HomePulse</strong><small>AI Energy Agent</small></span></a>
+    <nav class="side-nav">
+      <a class="active" href="#dashboard"><span>01</span>Dashboard</a>
+      <a href="#rooms-section"><span>02</span>Rooms & Sensors</a>
+      <a href="#decision"><span>03</span>Agent Decision</a>
+      <a href="#history-section"><span>04</span>Energy History</a>
+      <a href="#workflow"><span>05</span>How It Works</a>
+    </nav>
+    <div class="side-card">
+      <span class="live-dot"></span><b>Agent online</b>
+      <p>Local simulation. No cloud, no API, no real devices.</p>
+    </div>
+    <p class="side-foot">Artificial Intelligence<br>Self-Learning Activity</p>
+  </aside>
+
+  <main id="dashboard" class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> EXPLAINABLE SMART-HOME AGENT</div>
+        <h1>Smarter comfort.<br><span>Lower wasted energy.</span></h1>
+        <p>HomePulse senses room conditions, compares appliance plans and automatically chooses the best affordable action for every occupied room.</p>
+        <div class="hero-actions">
+          <button id="run" class="primary big" aria-pressed="false">Run simulation</button>
+          <button id="step" class="soft">+5 min step</button>
+          <button id="reset" class="ghost">Reset</button>
+        </div>
+      </div>
+      <div class="hero-status">
+        <div class="status-orb"><span>AI</span></div>
+        <div><small>Simulation time</small><strong id="sim-time">18:00</strong><p id="hero-status-text">Monitoring sensors and evaluating plans.</p></div>
+      </div>
     </section>
-    <section class="toolbar" aria-label="Simulation controls">
-      <div class="scenario-control">
+
+    <section class="control-panel" aria-label="Simulation controls">
+      <div class="control-item scenario-control">
         <label for="scenario">Scenario</label>
         <select id="scenario">
-          <option value="evening">Evening at home</option><option value="away">Everyone is away</option>
-          <option value="heat">Hot afternoon</option><option value="budget">Tight spending limit</option>
+          <option value="evening">Evening at home</option>
+          <option value="away">Everyone is away</option>
+          <option value="heat">Hot afternoon</option>
+          <option value="budget">Tight spending limit</option>
           <option value="daylight">Comfortable daylight</option>
         </select>
       </div>
-      <div class="mode-control"><span id="mode-label">Priority</span><div class="mode-group" role="group" aria-labelledby="mode-label">
-        <button data-mode="eco" aria-pressed="false">Eco</button><button data-mode="balanced" class="selected" aria-pressed="true">Balanced</button><button data-mode="comfort" aria-pressed="false">Comfort</button>
-      </div></div>
-      <div class="run-controls"><button id="reset">Reset</button><button id="step">+5 min</button><button id="run" class="primary" aria-pressed="false">Run simulation</button></div>
+      <div class="control-item mode-control">
+        <span id="mode-label">Agent priority</span>
+        <div class="mode-group" role="group" aria-labelledby="mode-label">
+          <button data-mode="eco" aria-pressed="false">Eco</button>
+          <button data-mode="balanced" class="selected" aria-pressed="true">Balanced</button>
+          <button data-mode="comfort" aria-pressed="false">Comfort</button>
+        </div>
+      </div>
+      <p class="control-note">Each simulation step represents 5 minutes. Change any sensor or setting and the agent recalculates instantly.</p>
     </section>
-    <p class="control-note">Each step adds 5 simulated minutes. Changing the scenario starts a new session.</p>
+
     <section class="metrics" aria-label="Energy summary">
-      <article><span>Selected power</span><strong id="power">—</strong><small>Includes 150 W essential load</small></article>
-      <article><span>Running cost</span><strong id="rate">—</strong><small>Estimated at the current tariff</small></article>
+      <article><span>Selected power</span><strong id="power">—</strong><small>Current agent plan</small></article>
+      <article><span>Running cost</span><strong id="rate">—</strong><small>At current tariff</small></article>
       <article><span>Session energy</span><strong id="energy">0.000 <em>kWh</em></strong><small id="energy-time">0 minutes simulated</small></article>
-      <article><span>Session cost</span><strong id="cost">₹0.00</strong><small>From completed steps</small></article>
+      <article><span>Session cost</span><strong id="cost">₹0.00</strong><small>Completed steps only</small></article>
     </section>
+
     <div id="alert" role="status" class="alert" hidden></div>
-    <div class="main-grid">
-      <section class="home-panel" aria-labelledby="rooms-heading">
-        <div class="section-heading"><h2 id="rooms-heading">Rooms</h2><span class="muted">Simulated sensors</span></div>
-        <div id="rooms" class="rooms"></div>
-        <div class="essential"><span>Essential appliances <small>Always on</small></span><strong>150 W</strong></div>
-      </section>
-      <aside class="settings" aria-labelledby="settings-heading">
-        <h2 id="settings-heading">Settings</h2>
-        <div class="setting"><label for="budget">Spending limit <strong id="budget-label"></strong></label><input id="budget" type="range" min="0" max="40" step="0.5"><p class="field-note">Maximum hourly rate, not a daily budget.</p></div>
-        <div class="setting"><label for="target">Target temperature <strong id="target-label"></strong></label><input id="target" type="range" min="20" max="28" step="1"></div>
-        <div class="setting"><label for="outdoor">Outdoor temperature <strong id="outdoor-label"></strong></label><input id="outdoor" type="range" min="15" max="45" step="1"></div>
-        <div class="setting"><label for="tariff">Demo tariff <strong id="tariff-label"></strong></label><input id="tariff" type="range" min="1" max="20" step="0.5"></div>
-      </aside>
-    </div>
-    <details id="reasoning" class="disclosure">
-      <summary>Why these appliances?<span id="candidate-count"></span></summary>
-      <div class="reason-grid"><div id="reasons"></div><div class="ranking"><h3>Top affordable plans</h3><p class="field-note">Rooms in order: Living room, Bedroom, Study. Higher scores rank better.</p><div id="rankings"></div>
-        <details class="formula"><summary>Scoring formula</summary><p>Utility = −8 × discomfort − energy weight × kW − 0.5 × cooling switches.</p><p>Discomfort combines squared temperature error and a 6-point penalty for an occupied, dim room without light. Energy weights: Comfort 0.5, Balanced 4, Eco 15. Plans above the spending limit are rejected.</p></details>
-      </div></div>
-    </details>
-    <section class="history" aria-labelledby="history-heading">
-      <div class="section-heading"><h2 id="history-heading">Power history</h2><button id="export" disabled>Download CSV</button></div>
-      <div id="chart" class="chart" aria-label="Power history chart"></div>
-      <div class="chart-footer"><span id="chart-caption">No measurements yet.</span><span>Last 24 steps · 5 minutes each</span></div>
+
+    <section id="rooms-section" class="section-block">
+      <div class="section-heading">
+        <div><span class="section-kicker">LIVE ENVIRONMENT</span><h2>Rooms & simulated sensors</h2></div>
+        <span class="muted">Occupancy · temperature · daylight</span>
+      </div>
+      <div class="content-grid">
+        <div>
+          <div id="rooms" class="rooms"></div>
+          <div class="essential"><span><b>Essential base load</b><small>Router, standby electronics and basic services</small></span><strong>150 W</strong></div>
+        </div>
+        <aside class="settings card" aria-labelledby="settings-heading">
+          <div class="card-title"><span>CONTROL</span><h3 id="settings-heading">Agent settings</h3></div>
+          <div class="setting"><label for="budget">Spending limit <strong id="budget-label"></strong></label><input id="budget" type="range" min="0" max="40" step="0.5"><p>Maximum hourly rate.</p></div>
+          <div class="setting"><label for="target">Target temperature <strong id="target-label"></strong></label><input id="target" type="range" min="20" max="28" step="1"></div>
+          <div class="setting"><label for="outdoor">Outdoor temperature <strong id="outdoor-label"></strong></label><input id="outdoor" type="range" min="15" max="45" step="1"></div>
+          <div class="setting"><label for="tariff">Energy tariff <strong id="tariff-label"></strong></label><input id="tariff" type="range" min="1" max="20" step="0.5"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="decision" class="decision-section">
+      <div class="section-heading">
+        <div><span class="section-kicker">UTILITY-BASED AI</span><h2>What the agent decided</h2></div>
+        <span id="candidate-count" class="pill"></span>
+      </div>
+      <div class="decision-grid">
+        <div class="decision-card featured">
+          <span class="decision-label">CURRENT ACTION PLAN</span>
+          <div id="decision-summary" class="decision-summary"></div>
+          <p id="decision-caption">The plan is recalculated from live inputs.</p>
+        </div>
+        <div class="decision-card">
+          <span class="decision-label">WHY THIS PLAN?</span>
+          <div id="reasons"></div>
+        </div>
+        <div class="decision-card">
+          <span class="decision-label">TOP AFFORDABLE PLANS</span>
+          <div id="rankings"></div>
+          <details class="formula"><summary>View scoring formula</summary><p>Utility = −8 × discomfort − energy weight × kW − 0.5 × cooling switches.</p><p>Occupied dim rooms receive a lighting penalty. Plans above the spending limit are rejected before selection.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="history-section" class="history section-block">
+      <div class="section-heading">
+        <div><span class="section-kicker">SESSION ANALYTICS</span><h2>Energy history</h2></div>
+        <button id="export" class="soft" disabled>Download CSV</button>
+      </div>
+      <div class="chart-card">
+        <div id="chart" class="chart" aria-label="Power history chart"></div>
+        <div class="chart-footer"><span id="chart-caption">No measurements yet.</span><span>Last 24 steps · 5 min each</span></div>
+      </div>
       <p id="export-status" role="status" class="field-note"></p>
     </section>
-    <details id="learn" class="disclosure about">
-      <summary>How the agent works</summary>
-      <ol><li>Read occupancy, temperature, daylight and your settings.</li><li>Compare appliance combinations using predicted comfort and power use.</li><li>Select the highest-scoring plan within the spending limit.</li><li>Apply it for 5 simulated minutes, update the readings and repeat.</li></ol>
-      <p>This is a utility-based AI simulation with fixed rules. Sensors, appliance power and temperature changes are illustrative. It does not control real devices or use a trained machine-learning model.</p>
-    </details>
-    <footer><span>Artificial Intelligence self-learning activity</span><span>All readings are simulated</span></footer>
+
+    <section id="workflow" class="workflow section-block">
+      <div class="section-heading"><div><span class="section-kicker">AGENT ARCHITECTURE</span><h2>Sense → Evaluate → Decide → Act → Repeat</h2></div></div>
+      <div class="flow">
+        <article><b>01</b><span>SENSE</span><p>Read occupancy, room temperature, daylight, target, tariff and budget.</p></article>
+        <article><b>02</b><span>EVALUATE</span><p>Generate valid light, fan and AC combinations for the current rooms.</p></article>
+        <article><b>03</b><span>DECIDE</span><p>Score comfort, power use and switching, then reject unaffordable plans.</p></article>
+        <article><b>04</b><span>ACT</span><p>Select the highest-utility affordable appliance plan.</p></article>
+        <article><b>05</b><span>REPEAT</span><p>Advance five minutes, update temperature, energy, cost and history.</p></article>
+      </div>
+      <div class="truth-note"><b>What makes it AI?</b><p>HomePulse is a utility-based intelligent agent: it observes an environment, evaluates alternatives with a utility function and selects actions that best satisfy its goals and constraints. It is not a trained machine-learning model.</p></div>
+    </section>
+
+    <footer><span>HomePulse · Smart Home Energy Agent</span><span>All readings and appliance responses are simulated for education.</span></footer>
   </main>
 </body>
 </html>
