@@ -31,9 +31,66 @@ function buildRooms(){
   }));
 }
 
+
+function comfortBaseline(){
+  let watts=A.WATTS.essential;
+  state.rooms.forEach(r=>{
+    if(!r.occupied)return;
+    const cooling=r.temp>state.target+0.5?'ac':'off';
+    watts+=A.WATTS[cooling]+(r.lux<300?A.WATTS.light:0);
+  });
+  return watts;
+}
+function actionText(actions){
+  return actions.map((a,i)=>state.rooms[i].name+': '+(state.rooms[i].occupied?(coolingName(a.cooling)+(a.light?' + Light':'')):'Vacant')).join(' · ');
+}
+function simClock(minutes){
+  const total=18*60+minutes;
+  return String(Math.floor(total/60)%24).padStart(2,'0')+':'+String(total%60).padStart(2,'0');
+}
+function renderAgentOps(p){
+  const baseline=comfortBaseline();
+  const reduction=baseline?((baseline-p.watts)/baseline*100):0;
+  const comfort=Math.max(0,Math.min(100,100-p.discomfort*4));
+  const rejected=p.totalCount-p.feasibleCount;
+  $('ops-plans').textContent=p.totalCount;
+  $('ops-budget').textContent=p.feasible?'PASS':'LIMIT';
+  $('ops-budget-note').textContent=p.feasible?money(p.rate)+'/h ≤ '+money(state.budget)+'/h':'No feasible controllable plan';
+  $('ops-comfort').textContent=Math.round(comfort)+'/100';
+  $('ops-saving').textContent=(reduction>=0?'↓ ':'↑ ')+Math.abs(reduction).toFixed(1)+'%';
+  $('ops-utility').textContent=p.score.toFixed(1);
+  $('ops-cycle').textContent='Cycle '+state.history.length;
+  $('pipe-sense').textContent=state.rooms.filter(r=>r.occupied).length+' occupied · '+state.rooms.length+' rooms';
+  $('pipe-generate').textContent=p.totalCount+' candidate plans';
+  $('pipe-budget').textContent=rejected+' rejected · '+p.feasibleCount+' affordable';
+  $('pipe-action').textContent=p.actions.map(a=>coolingName(a.cooling)+(a.light?'+Light':'')).join(' / ');
+  $('baseline-watts').textContent=baseline.toLocaleString()+' W';
+  $('agent-watts').textContent=p.watts.toLocaleString()+' W';
+  const scale=Math.max(1,baseline,p.watts);
+  $('baseline-bar').style.width=Math.max(4,baseline/scale*100)+'%';
+  $('agent-bar').style.width=Math.max(4,p.watts/scale*100)+'%';
+
+  const now=simClock(state.minutes);
+  const log=[
+    ['SENSE','Sensor snapshot captured',state.rooms.filter(r=>r.occupied).length+' occupied rooms · outdoor '+state.outdoor+'°C'],
+    ['PLAN',p.totalCount+' candidate plans generated','Light, fan and AC combinations evaluated'],
+    ['FILTER',rejected+' plans rejected by spending limit',p.feasibleCount+' remain affordable at '+money(state.budget)+'/h'],
+    ['DECIDE','Highest-utility affordable plan selected',actionText(p.actions)],
+    ['ACT',state.history.length?'Latest 5-minute step recorded':'Ready to apply selected plan',state.history.length?state.energy.toFixed(3)+' kWh · '+money(state.cost)+' session cost':'Press +5 min or Run simulation']
+  ];
+  $('activity-log').innerHTML=log.map((x,i)=>`<div class="log-row"><time>${now}</time><span class="log-tag tag-${x[0].toLowerCase()}">${x[0]}</span><div><b>${x[1]}</b><small>${x[2]}</small></div></div>`).join('');
+
+  const hist=state.history.slice(-5).reverse();
+  $('ops-history').innerHTML=hist.length?hist.map(h=>{
+    const acts=h.actions.map((a,i)=>state.rooms[i].name+': '+coolingName(a.cooling)+(a.light?'+Light':'')).join(' · ');
+    return `<tr><td>${simClock(h.minutes)}</td><td><span class="table-pill">${h.mode}</span></td><td>${acts}</td><td>${h.watts.toLocaleString()} W</td><td>${money(h.cost)}</td><td><span class="status-clean">Selected</span></td></tr>`;
+  }).join(''):`<tr class="empty-row"><td colspan="6">No completed steps yet. The current plan is ready; run the simulation to build decision history.</td></tr>`;
+}
+
 function render(){
   try{
     const p=A.evaluate(state);
+    renderAgentOps(p);
     $('power').innerHTML=`${p.watts.toLocaleString()} <em>W</em>`;
     $('rate').innerHTML=`${money(p.rate)} <em>/ h</em>`;
     $('energy').innerHTML=`${state.energy.toFixed(3)} <em>kWh</em>`;
