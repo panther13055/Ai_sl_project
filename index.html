@@ -18,9 +18,10 @@
     <nav class="side-nav">
       <a class="active" href="#dashboard"><span>01</span>Dashboard</a>
       <a href="#rooms-section"><span>02</span>Rooms & Sensors</a>
-      <a href="#decision"><span>03</span>Agent Decision</a>
-      <a href="#history-section"><span>04</span>Energy History</a>
-      <a href="#workflow"><span>05</span>How It Works</a>
+      <a href="#agent-operations"><span>03</span>Agent Operations</a>
+      <a href="#decision"><span>04</span>Agent Decision</a>
+      <a href="#history-section"><span>05</span>Energy Analytics</a>
+      <a href="#workflow"><span>06</span>How It Works</a>
     </nav>
     <div class="side-card">
       <span class="live-dot"></span><b>Agent online</b>
@@ -96,6 +97,76 @@
           <div class="setting"><label for="tariff">Energy tariff <strong id="tariff-label"></strong></label><input id="tariff" type="range" min="1" max="20" step="0.5"></div>
         </aside>
       </div>
+    </section>
+
+
+    <section id="agent-operations" class="agent-ops section-block">
+      <div class="ops-head">
+        <div>
+          <span class="section-kicker">AGENT OPERATIONS · LIVE</span>
+          <h2>Watch HomePulse think, decide and act.</h2>
+          <p>Operational view of the utility-based agent: observations, candidate plans, constraints, decision quality and recent actions.</p>
+        </div>
+        <div class="ops-live"><span class="live-dot"></span><b>Decision engine online</b><small id="ops-cycle">Cycle 0</small></div>
+      </div>
+
+      <div class="ops-metrics">
+        <article><span>Plans evaluated</span><strong id="ops-plans">—</strong><small>Current decision cycle</small></article>
+        <article><span>Budget compliance</span><strong id="ops-budget">—</strong><small id="ops-budget-note">Constraint check</small></article>
+        <article><span>Comfort index</span><strong id="ops-comfort">—</strong><small>Derived from current discomfort score</small></article>
+        <article><span>Estimated power reduction</span><strong id="ops-saving">—</strong><small>Vs comfort-first baseline</small></article>
+        <article><span>Utility score</span><strong id="ops-utility">—</strong><small>Higher is preferred</small></article>
+      </div>
+
+      <div class="ops-layout">
+        <section class="ops-panel pipeline-panel">
+          <div class="ops-panel-title"><div><span>DECISION PIPELINE</span><h3>Sense → Score → Constrain → Select → Act</h3></div><span class="ops-badge">REAL TIME</span></div>
+          <div class="pipeline">
+            <div class="pipe-node"><i>01</i><b>Sense</b><small id="pipe-sense">Reading room state</small></div>
+            <span class="pipe-link"></span>
+            <div class="pipe-node"><i>02</i><b>Generate</b><small id="pipe-generate">Building candidates</small></div>
+            <span class="pipe-link"></span>
+            <div class="pipe-node"><i>03</i><b>Evaluate</b><small>Comfort + energy + switching</small></div>
+            <span class="pipe-link"></span>
+            <div class="pipe-node"><i>04</i><b>Constrain</b><small id="pipe-budget">Applying budget</small></div>
+            <span class="pipe-link"></span>
+            <div class="pipe-node selected-node"><i>05</i><b>Select & Act</b><small id="pipe-action">Waiting for plan</small></div>
+          </div>
+
+          <div class="ops-comparison">
+            <div class="comparison-copy">
+              <span>AGENT IMPACT</span>
+              <h3>Comfort-first baseline vs selected plan</h3>
+              <p>The baseline assumes AC in every occupied room that is above the cooling threshold and lights in every occupied dim room. HomePulse may choose a lower-power plan when utility and budget justify it.</p>
+            </div>
+            <div class="compare-bars">
+              <div class="compare-row"><label><span>Comfort-first baseline</span><b id="baseline-watts">—</b></label><div class="compare-track"><span id="baseline-bar"></span></div></div>
+              <div class="compare-row agent"><label><span>HomePulse selected</span><b id="agent-watts">—</b></label><div class="compare-track"><span id="agent-bar"></span></div></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="ops-panel activity-panel">
+          <div class="ops-panel-title"><div><span>LIVE AGENT ACTIVITY</span><h3>Decision trace</h3></div><span class="terminal-dots">● ● ●</span></div>
+          <div id="activity-log" class="activity-log"></div>
+          <div class="health-grid">
+            <div><span class="health-ok"></span><b>Sensor simulator</b><small>Online</small></div>
+            <div><span class="health-ok"></span><b>Utility evaluator</b><small>Online</small></div>
+            <div><span class="health-ok"></span><b>Constraint filter</b><small>Online</small></div>
+            <div><span class="health-ok"></span><b>History logger</b><small>Ready</small></div>
+          </div>
+        </aside>
+      </div>
+
+      <section class="ops-panel recent-panel">
+        <div class="ops-panel-title"><div><span>DECISION HISTORY</span><h3>Recent autonomous actions</h3></div><span class="muted">Latest five simulation steps</span></div>
+        <div class="decision-table-wrap">
+          <table class="decision-table">
+            <thead><tr><th>Time</th><th>Mode</th><th>Selected action</th><th>Power</th><th>Interval cost</th><th>Status</th></tr></thead>
+            <tbody id="ops-history"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
 
     <section id="decision" class="decision-section">
