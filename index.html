@@ -51,13 +51,26 @@
     <section class="control-panel" aria-label="Simulation controls">
       <div class="control-item scenario-control">
         <label for="scenario">Scenario</label>
-        <select id="scenario">
-          <option value="evening">Evening at home</option>
-          <option value="away">Everyone is away</option>
-          <option value="heat">Hot afternoon</option>
-          <option value="budget">Tight spending limit</option>
-          <option value="daylight">Comfortable daylight</option>
-        </select>
+        <div class="custom-select" id="scenario-picker">
+          <select id="scenario" class="native-select-hidden" aria-hidden="true" tabindex="-1">
+            <option value="evening">Evening at home</option>
+            <option value="away">Everyone is away</option>
+            <option value="heat">Hot afternoon</option>
+            <option value="budget">Tight spending limit</option>
+            <option value="daylight">Comfortable daylight</option>
+          </select>
+          <button id="scenario-trigger" class="select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span id="scenario-value">Evening at home</span>
+            <span class="select-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="scenario-menu" class="select-menu" role="listbox" aria-label="Scenario" hidden>
+            <button type="button" role="option" data-scenario-option="evening" aria-selected="true">Evening at home</button>
+            <button type="button" role="option" data-scenario-option="away" aria-selected="false">Everyone is away</button>
+            <button type="button" role="option" data-scenario-option="heat" aria-selected="false">Hot afternoon</button>
+            <button type="button" role="option" data-scenario-option="budget" aria-selected="false">Tight spending limit</button>
+            <button type="button" role="option" data-scenario-option="daylight" aria-selected="false">Comfortable daylight</button>
+          </div>
+        </div>
       </div>
       <div class="control-item mode-control">
         <span id="mode-label">Agent priority</span>
