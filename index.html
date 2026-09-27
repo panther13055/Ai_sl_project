@@ -52,13 +52,7 @@
       <div class="control-item scenario-control">
         <label for="scenario">Scenario</label>
         <div class="custom-select" id="scenario-picker">
-          <select id="scenario" class="native-select-hidden" aria-hidden="true" tabindex="-1">
-            <option value="evening">Evening at home</option>
-            <option value="away">Everyone is away</option>
-            <option value="heat">Hot afternoon</option>
-            <option value="budget">Tight spending limit</option>
-            <option value="daylight">Comfortable daylight</option>
-          </select>
+          <input id="scenario" type="hidden" value="evening">
           <button id="scenario-trigger" class="select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
             <span id="scenario-value">Evening at home</span>
             <span class="select-chevron" aria-hidden="true"></span>
