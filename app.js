@@ -4,6 +4,26 @@ let state=A.initialState(),timer=null;
 const money=n=>'₹'+n.toFixed(2);
 const coolingName=v=>v==='ac'?'AC':v==='fan'?'Fan':'Cooling off';
 
+
+const scenarioLabels={
+  evening:'Evening at home',
+  away:'Everyone is away',
+  heat:'Hot afternoon',
+  budget:'Tight spending limit',
+  daylight:'Comfortable daylight'
+};
+function closeScenarioMenu(){
+  $('scenario-menu').hidden=true;
+  $('scenario-trigger').setAttribute('aria-expanded','false');
+}
+function syncScenarioUI(){
+  const value=$('scenario').value;
+  $('scenario-value').textContent=scenarioLabels[value]||'Select scenario';
+  document.querySelectorAll('[data-scenario-option]').forEach(b=>{
+    b.setAttribute('aria-selected',String(b.dataset.scenarioOption===value));
+  });
+}
+
 function stop(){
   if(timer)clearInterval(timer);
   timer=null;
@@ -90,6 +110,7 @@ function renderAgentOps(p){
 function render(){
   try{
     const p=A.evaluate(state);
+    syncScenarioUI();
     renderAgentOps(p);
     $('power').innerHTML=`${p.watts.toLocaleString()} <em>W</em>`;
     $('rate').innerHTML=`${money(p.rate)} <em>/ h</em>`;
@@ -162,7 +183,32 @@ $('reset').addEventListener('click',()=>{
   stop();state=A.initialState();$('scenario').value='evening';$('export-status').textContent='';buildRooms();render();
 });
 $('scenario').addEventListener('change',e=>{
-  stop();state=A.scenario(e.target.value);$('export-status').textContent='';buildRooms();render();
+  stop();state=A.scenario(e.target.value);$('export-status').textContent='';buildRooms();render();closeScenarioMenu();
+});
+$('scenario-trigger').addEventListener('click',e=>{
+  e.stopPropagation();
+  const open=$('scenario-trigger').getAttribute('aria-expanded')==='true';
+  $('scenario-menu').hidden=open;
+  $('scenario-trigger').setAttribute('aria-expanded',String(!open));
+  if(!open){
+    const selected=document.querySelector('[data-scenario-option][aria-selected="true"]');
+    if(selected)selected.focus();
+  }
+});
+document.querySelectorAll('[data-scenario-option]').forEach(b=>b.addEventListener('click',()=>{
+  $('scenario').value=b.dataset.scenarioOption;
+  $('scenario').dispatchEvent(new Event('change',{bubbles:true}));
+}));
+document.addEventListener('click',e=>{
+  if(!$('scenario-picker').contains(e.target))closeScenarioMenu();
+});
+$('scenario-picker').addEventListener('keydown',e=>{
+  const options=[...document.querySelectorAll('[data-scenario-option]')];
+  if(e.key==='Escape'){closeScenarioMenu();$('scenario-trigger').focus();return;}
+  if($('scenario-menu').hidden)return;
+  const i=options.indexOf(document.activeElement);
+  if(e.key==='ArrowDown'){e.preventDefault();options[(i+1+options.length)%options.length].focus();}
+  if(e.key==='ArrowUp'){e.preventDefault();options[(i-1+options.length)%options.length].focus();}
 });
 $('export').addEventListener('click',()=>{
   const header='minutes,power_w,interval_kwh,interval_cost_inr,total_kwh,total_cost_inr,mode,tariff_inr_per_kwh,limit_inr_per_hour,living_cooling,living_light,bedroom_cooling,bedroom_light,study_cooling,study_light';
