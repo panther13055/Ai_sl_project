@@ -183,6 +183,7 @@ $('reset').addEventListener('click',()=>{
   stop();state=A.initialState();$('scenario').value='evening';$('export-status').textContent='';buildRooms();render();
 });
 $('scenario').addEventListener('change',e=>{
+  if(!scenarioLabels[e.target.value])return;
   stop();state=A.scenario(e.target.value);$('export-status').textContent='';buildRooms();render();closeScenarioMenu();
 });
 $('scenario-trigger').addEventListener('click',e=>{
